@@ -3,7 +3,7 @@
 ---
 The workflow diagram:
 
-![Data Flow Diagram](https://github.com/bao040/Spotify_data_engineering_project/blob/main/project1_airflow_snowflake.png)
+![Data Flow Diagram](https://github.com/bao040/Spotify_data_engineering_project/blob/main/worflow_diagram.png)
 
 
 ## **Project** **Overview**
