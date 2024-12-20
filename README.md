@@ -1,9 +1,9 @@
 # Spotify Data Engineering Project
 
 ---
-The workflow involves several key steps as depicted in the diagram:
+The workflow diagram:
 
-![Data Flow Diagram](path/to/your/image.png)
+![Data Flow Diagram](https://github.com/bao040/Spotify_data_engineering_project/blob/main/project1_airflow_snowflake.png)
 
 
 ## **Project** **Overview**
@@ -28,6 +28,10 @@ The workflow involves several key steps as depicted in the diagram:
 4. **Process and Store Data Temporarily:**
    - Raw data will be processed and extracted necessary information for 3 objects: songs, artists and albums. This stage includes data extraction skills with Python in Apache Airflow platform.
    - Processed data then is stored temporarily in S3 Bucket with 3 seperated folders, each for albums, artists and songs.
+     
+The data is processed paralelly in Apache Airflow:
+
+![Data Flow Diagram](https://github.com/bao040/Spotify_data_engineering_project/blob/main/paralel.png)
 
 5. **Load Data into Snowflake:**
 
