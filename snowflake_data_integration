@@ -1,0 +1,93 @@
+-- CREATE TABLES 
+create or replace table spotify_data_warehouse.public.albums(
+    album_id string PRIMARY KEY,
+    name string,
+    release_date date,
+    total_tracks integer,
+    url string
+);
+
+create or replace table spotify_data_warehouse.public.artists(
+    artist_id string PRIMARY KEY,
+    artist_name string,
+    external_url string
+);
+
+create or replace table spotify_data_warehouse.public.songs(
+    song_id string PRIMARY KEY,
+    song_name string,
+    duration_ms integer,
+    url string, 
+    popularity integer,
+    song_added string,
+    album_id string, 
+    artist_id string,
+    FOREIGN KEY(album_id) references spotify_data_warehouse.public.albums(album_id),
+    FOREIGN KEY(artist_id) references spotify_data_warehouse.public.artists(artist_id) 
+);
+
+-- CREATE STORAGE INTEGRATION
+
+create or replace storage integration spotify_storage_integration
+    type = external_stage
+    storage_provider = s3
+    enabled = true 
+    storage_aws_role_arn = '------------------------------------------'
+    storage_allowed_locations = ('-------------------------');
+
+desc integration spotify_storage_integration;
+
+
+-- CREATE FILE FORMAT
+CREATE OR REPLACE FILE FORMAT spotify_data_warehouse.pipe_stages.csv_file_format
+    TYPE = CSV
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1
+    NULL_IF = ('NULL', 'null')
+    EMPTY_FIELD_AS_NULL = TRUE
+    FIELD_OPTIONALLY_ENCLOSED_BY = '"';
+
+
+-- CREATE STAGES FOR ALBUMS, SONGS AND ARTISTS TABLES
+create or replace stage spotify_data_warehouse.pipe_stages.spotify_albums_stage
+    url = '---------------------------------'
+    storage_integration = spotify_storage_integration
+    file_format = spotify_data_warehouse.pipe_stages.csv_file_format;
+
+create or replace stage spotify_data_warehouse.pipe_stages.spotify_artists_stage
+    url = '----------------------------------'
+    storage_integration = spotify_storage_integration
+    file_format = spotify_data_warehouse.pipe_stages.csv_file_format;
+
+create or replace stage spotify_data_warehouse.pipe_stages.spotify_songs_stage
+    url = '-------------------------------------'
+    storage_integration = spotify_storage_integration
+    file_format = spotify_data_warehouse.pipe_stages.csv_file_format;
+
+    
+--CREATE PIPES FOR ALBUMS, ARTISTS AND SONGS TABLES: 
+CREATE OR REPLACE PIPE SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.ARTISTS_PIPE
+AUTO_INGEST = TRUE
+AS 
+COPY INTO SPOTIFY_DATA_WAREHOUSE.PUBLIC.ARTISTS
+FROM @spotify_data_warehouse.pipe_stages.spotify_artists_stage;
+
+desc pipe SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.ARTISTS_PIPE;
+
+---
+CREATE OR REPLACE PIPE SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.ALBUMS_PIPE
+AUTO_INGEST = TRUE
+AS 
+COPY INTO SPOTIFY_DATA_WAREHOUSE.PUBLIC.ALBUMS
+FROM @spotify_data_warehouse.pipe_stages.spotify_albums_stage;
+
+desc pipe SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.ALBUMS_PIPE;
+
+
+CREATE OR REPLACE PIPE SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.SONGS_PIPE
+AUTO_INGEST = TRUE
+AS 
+COPY INTO SPOTIFY_DATA_WAREHOUSE.PUBLIC.SONGS
+FROM @spotify_data_warehouse.pipe_stages.spotify_songs_stage;
+
+desc pipe SPOTIFY_DATA_WAREHOUSE.PIPE_STAGES.SONGS_PIPE;
